@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en" data-palette="radiograph">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Awesome Looped Models for Medical Imaging</title>
+    <!-- fonts, SEO meta and JSON-LD are injected by scripts/build_site.py -->
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Ccircle cx='15' cy='15' r='10' fill='none' stroke='%230B6E99' stroke-width='3.2' stroke-dasharray='48 15'/%3E%3Cpath d='M23.5 4.5 L26.5 11 L19.5 10.5 z' fill='%23F26B1D'/%3E%3Ccircle cx='15' cy='15' r='3.2' fill='%23F26B1D'/%3E%3C/svg%3E" />
+    <script>
+      // Apply the saved palette and mode before first paint (no flash).
+      try {
+        var p = localStorage.getItem("almi-palette");
+        if (p) document.documentElement.dataset.palette = p;
+        var t = localStorage.getItem("theme") || "light";
+        var dark = t === "dark" || (t === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
+        if (dark) document.documentElement.classList.add("dark");
+      } catch (e) {}
+
+      // Boot loader. Only runs when JavaScript runs, so crawlers and agents that read the raw HTML
+      // never see it and get the plain paper list inside #root instead. The app calls
+      // __amjBootDone() once it has rendered; the timeout is a safety net if the app fails.
+      document.documentElement.classList.add("boot");
+      window.__amjBootDone = function () {
+        var h = document.documentElement;
+        if (!h.classList.contains("boot")) return;
+        h.classList.remove("boot");
+        var b = document.getElementById("boot");
+        if (b) {
+          b.classList.add("out");
+          setTimeout(function () { b.remove(); }, 450);
+        }
+      };
+      setTimeout(function () { window.__amjBootDone(); }, 8000);
+    </script>
+    <style>
+      #boot { display: none; }
+      .boot #boot, #boot.out {
+        position: fixed; inset: 0; z-index: 100;
+        display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+        background: hsl(var(--background, 212 24% 98.5%));
+        transition: opacity 0.4s ease;
+      }
+      #boot.out { opacity: 0; pointer-events: none; }
+      .boot body { overflow: hidden; }
+      .boot #root { visibility: hidden; }
+
+      .boot-rings { position: relative; width: 64px; height: 64px; }
+      .boot-rings i { position: absolute; inset: 0; border-radius: 50%; border: 2px solid hsl(var(--border, 212 18% 88%));
+        border-top-color: hsl(var(--primary, 199 89% 34%)); animation: almi-spin 1.6s linear infinite; }
+      .boot-rings i:nth-child(2) { inset: 10px; animation-duration: 1.2s; border-top-color: hsl(var(--target, 22 92% 52%)); }
+      .boot-rings i:nth-child(3) { inset: 20px; animation-duration: 0.8s; }
+      @keyframes almi-spin { to { transform: rotate(360deg); } }
+      .boot-name { margin: 0; font: 600 15px/1.2 "Instrument Sans", "Segoe UI", system-ui, sans-serif; color: hsl(var(--foreground, 212 24% 11%)); letter-spacing: -0.01em; }
+      .boot-msg { margin: -10px 0 0; font: 400 12px/1.4 "JetBrains Mono", ui-monospace, Consolas, monospace; color: hsl(var(--muted-foreground, 212 10% 40%)); }
+      .boot-bar { width: 132px; height: 2px; border-radius: 2px; overflow: hidden; background: hsl(var(--border, 212 18% 88%)); }
+      .boot-bar span { display: block; width: 40%; height: 100%; background: hsl(var(--primary, 199 89% 34%)); animation: almi-bar 1.2s ease-in-out infinite; }
+      @keyframes almi-bar { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
+      @media (prefers-reduced-motion: reduce) {
+        .boot-rings i { animation: none; }
+        .boot-bar span { animation: none; width: 100%; }
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      // Inserted by script (not static markup) so the raw HTML that crawlers read has no loader text.
+      document.body.insertAdjacentHTML("afterbegin", '<div id="boot" role="status" aria-label="Loading Awesome Looped Models for Medical Imaging"><div class="boot-rings" aria-hidden="true"><i></i><i></i><i></i></div><p class="boot-name">Awesome Looped Models for Medical Imaging</p><p class="boot-msg">Loading papers…</p><div class="boot-bar" aria-hidden="true"><span></span></div></div>');
+    </script>
+    <div id="root"></div>
+    <script id="site-data" type="application/json">{}</script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

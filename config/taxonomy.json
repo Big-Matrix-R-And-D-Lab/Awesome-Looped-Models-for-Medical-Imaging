@@ -1,0 +1,176 @@
+{
+  "$comment": "Closed taxonomy of the survey 'Looped Models for Medical Imaging: A Survey of Iterative Architectures, Test-Time Adaptation, and Feedback'. The five loop families and their branch leaves are Figure 3 of the manuscript ('Loop-centered classification of the 49 primary method and application records') verbatim, in the figure's order; the sixth class is the manuscript's survey class ('Surveys, n = 7, Background only', Supplementary Fig. S1 and Table S1). The state/timescale/risk fields are Fig. 1 of the manuscript. Single source of truth for classification, validation, README/website grouping, issue forms and Claude's classification guide. Changing it requires an explicit maintainer-approved PR that follows a change to the manuscript's Figure 3 (not the other way around), updates tests/test_taxonomy.py and re-runs `python scripts/taxonomy.py --write`. Never add, rename, merge or reorder entries to fit a paper; a paper that does not fit goes to data/review_queue.csv instead.",
+  "version": 1,
+  "separator": " > ",
+  "classes": [
+    {
+      "id": "recurrent",
+      "letter": "1",
+      "name": "Recurrent, recursive & equilibrium",
+      "short": "Recurrent/equil.",
+      "icon": "🔁",
+      "eligible": true,
+      "state": "features, hidden state",
+      "timescale": "ms per iteration",
+      "risk": "non-convergence, computational cost",
+      "definition": "The loop closes inside a single forward pass: a block with shared weights is applied repeatedly to features, to an output estimate or to a hidden state, or the output is defined as a fixed point of such a block (deep equilibrium models).",
+      "subcategories": [
+        "Recurrent conv. segmentation",
+        "Recursive transformer U-Net",
+        "Recurrent dynamic MRI recon.",
+        "Recurrent mask refinement",
+        "Deep equilibrium models"
+      ]
+    },
+    {
+      "id": "unrolled",
+      "letter": "2",
+      "name": "Unrolled & data-consistency reconstruction",
+      "short": "Unrolled/DC",
+      "icon": "🧮",
+      "eligible": true,
+      "state": "image, k-space",
+      "timescale": "ms per iteration",
+      "risk": "shift in the forward operator A, artifacts",
+      "definition": "An iterative solver for an inverse problem (y = Ax + n, e.g. undersampled k-space) is truncated to K stages that alternate a physics-based data-consistency step with a learned prior or regulariser, with or without weights shared across stages or a recurrent hidden state between them.",
+      "subcategories": [
+        "Weight-shared unrolling",
+        "Recurrent inference machines",
+        "Recurrent variational network",
+        "Multi-prior, edge, alignment DUNs",
+        "Multi-contrast SR unfolding",
+        "Motion search with data consistency"
+      ]
+    },
+    {
+      "id": "test-time",
+      "letter": "3",
+      "name": "Test-time loops",
+      "short": "Test-time",
+      "icon": "⏱️",
+      "eligible": true,
+      "state": "parameters, prompts",
+      "timescale": "seconds per case",
+      "risk": "overfitting, error accumulation",
+      "definition": "Model state (normalisation statistics, a parameter subset, an input transformation, a prompt or embedding, or a sequence of reasoning steps) is updated at inference using the test case or target-domain data, usually label-free; the loop resets per case (episodic) or carries forward (continual).",
+      "subcategories": [
+        "Per-image weight / norm. adaptation",
+        "Input, prompt, embedding TTA",
+        "Test-time training",
+        "Concept-level correction",
+        "VLM reasoning, test-time scaling"
+      ]
+    },
+    {
+      "id": "data-feedback",
+      "letter": "4",
+      "name": "Data-feedback training loops",
+      "short": "Data-feedback",
+      "icon": "🔄",
+      "eligible": true,
+      "state": "labels, training set",
+      "timescale": "hours–days",
+      "risk": "confirmation bias, collapse",
+      "definition": "The training set is updated over rounds from the model's own outputs: self-training pseudo-labels, co-training or mutual learning between models or views, pseudo-label-guided synthesis, refinement of the training data, or active learning in which an annotator labels the samples the model selects.",
+      "subcategories": [
+        "Co-training, mutual learning",
+        "Self-training, distillation",
+        "Pseudo-label-guided synthesis",
+        "Training-data refinement",
+        "Active learning"
+      ]
+    },
+    {
+      "id": "deployment",
+      "letter": "5",
+      "name": "Human, deployment & lifelong loops",
+      "short": "Deployment/human",
+      "icon": "🩺",
+      "eligible": true,
+      "state": "deployed model, memory",
+      "timescale": "weeks–months",
+      "risk": "drift, forgetting, governance",
+      "definition": "A model is updated around its use: interactive or clinician corrections, human-in-the-loop annotation engines, recalibration after acquisition or scanner shift, continual learning with memory replay, or agents that improve from their own experience.",
+      "subcategories": [
+        "Interactive / clinician correction",
+        "HITL annotation engines",
+        "Post-deployment drift correction",
+        "Continual memory replay",
+        "Self-improving agents, roadmap"
+      ]
+    },
+    {
+      "id": "surveys",
+      "letter": "S",
+      "name": "Surveys",
+      "short": "Surveys",
+      "icon": "📚",
+      "eligible": false,
+      "state": "",
+      "timescale": "",
+      "risk": "",
+      "definition": "Review articles used as background only. They are listed for reference but are not primary method or application records and are excluded from the primary-record count.",
+      "subcategories": [
+        "Background only"
+      ]
+    }
+  ],
+  "aliases": {
+    "$comment": "Spelling variants that are normalised to a canonical name without changing meaning. Keys are compared case-insensitively with spaces collapsed. The family aliases are the short labels of Supplementary Table S1. Raw primary-category labels (for example 'iterative reconstruction', which maps to two different families in the manuscript) are deliberately absent so they go to review rather than being guessed.",
+    "classes": {
+      "1": "Recurrent, recursive & equilibrium",
+      "Recurrent/equil.": "Recurrent, recursive & equilibrium",
+      "Recurrent/equilibrium": "Recurrent, recursive & equilibrium",
+      "Recurrent, recursive and equilibrium": "Recurrent, recursive & equilibrium",
+      "Recurrent, recursive and equilibrium architectures": "Recurrent, recursive & equilibrium",
+      "2": "Unrolled & data-consistency reconstruction",
+      "Unrolled/DC": "Unrolled & data-consistency reconstruction",
+      "Unrolled & data-consistency recon.": "Unrolled & data-consistency reconstruction",
+      "Unrolled and data-consistency reconstruction": "Unrolled & data-consistency reconstruction",
+      "3": "Test-time loops",
+      "Test-time": "Test-time loops",
+      "4": "Data-feedback training loops",
+      "Data-feedback": "Data-feedback training loops",
+      "Data feedback training loops": "Data-feedback training loops",
+      "5": "Human, deployment & lifelong loops",
+      "Deployment/human": "Human, deployment & lifelong loops",
+      "Human, deployment and lifelong loops": "Human, deployment & lifelong loops",
+      "S": "Surveys",
+      "Survey": "Surveys"
+    },
+    "subcategories": {
+      "Recurrent convolutional segmentation": "Recurrent conv. segmentation",
+      "Recurrent dynamic MRI reconstruction": "Recurrent dynamic MRI recon.",
+      "Deep equilibrium": "Deep equilibrium models",
+      "DEQ": "Deep equilibrium models",
+      "RIM": "Recurrent inference machines",
+      "Per-image weight / normalization adaptation": "Per-image weight / norm. adaptation",
+      "Per-image weight/norm. adaptation": "Per-image weight / norm. adaptation",
+      "TTT": "Test-time training",
+      "Co-training": "Co-training, mutual learning",
+      "Self-training": "Self-training, distillation",
+      "Interactive/clinician correction": "Interactive / clinician correction",
+      "Human-in-the-loop annotation engines": "HITL annotation engines",
+      "Background": "Background only"
+    }
+  },
+  "hints": {
+    "$comment": "Keyword hints shown to reviewers for rows that need a decision. Never applied automatically.",
+    "Recurrent conv. segmentation": ["recurrent residual", "r2u-net", "recurrent convolution"],
+    "Deep equilibrium models": ["equilibrium", "fixed point", "fixed-point", "implicit model"],
+    "Recurrent inference machines": ["recurrent inference machine"],
+    "Multi-prior, edge, alignment DUNs": ["deep unfolding", "unfolding network"],
+    "Motion search with data consistency": ["motion correction"],
+    "Per-image weight / norm. adaptation": ["test-time adaptation", "test time adaptation", "entropy minimization"],
+    "Input, prompt, embedding TTA": ["prompt", "test-time augmentation"],
+    "Test-time training": ["test-time training", "test time training"],
+    "VLM reasoning, test-time scaling": ["test-time scaling", "vision-language", "vlm"],
+    "Co-training, mutual learning": ["co-training", "cotraining", "mutual learning", "cross-model"],
+    "Self-training, distillation": ["self-training", "pseudo-label", "distillation"],
+    "Active learning": ["active learning", "acquisition"],
+    "Interactive / clinician correction": ["interactive", "clinician", "human-in-the-loop", "click"],
+    "Continual memory replay": ["continual", "replay", "lifelong", "forgetting"],
+    "Post-deployment drift correction": ["drift", "acquisition shift", "recalibration"],
+    "Background only": ["survey", "review"]
+  }
+}

@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="t d">
+  <title id="t">Awesome Looped Models for Medical Imaging</title>
+  <desc id="d">Companion list to the survey Looped Models for Medical Imaging: five loop families from recurrent networks to deployment loops.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset="0.6" stop-color="#0d2440"/>
+      <stop offset="1" stop-color="#0b4f6e"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.8" cy="0.4" r="0.55">
+      <stop offset="0" stop-color="#38bdf8" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#38bdf8" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.2" fill="#ffffff" fill-opacity="0.06"/>
+    </pattern>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+  <rect width="1280" height="640" fill="url(#bg)"/>
+  <rect width="1280" height="640" fill="url(#dots)"/>
+  <rect width="1280" height="640" fill="url(#glow)"/>
+  <g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+    <text x="80" y="110" fill="#7dd3fc" font-size="22" font-weight="600" letter-spacing="5">AWESOME LIST · SURVEY COMPANION</text>
+    <text x="76" y="196" fill="#ffffff" font-size="74" font-weight="700" letter-spacing="-1.5">Looped Models</text>
+    <text x="76" y="276" fill="#ffffff" font-size="74" font-weight="700" letter-spacing="-1.5">for Medical Imaging</text>
+    <text x="80" y="330" fill="#cbd5e1" font-size="24">Iterative architectures, test-time adaptation and feedback</text>
+    <circle cx="92" cy="392" r="12" fill="#7c7cf0"/><text x="92" y="397" text-anchor="middle" font-size="14" font-weight="700" fill="#0b1220">1</text><text x="116" y="398" font-size="20" fill="#e2e8f0">Recurrent / equilibrium</text>
+    <circle cx="92" cy="432" r="12" fill="#2bb8c4"/><text x="92" y="437" text-anchor="middle" font-size="14" font-weight="700" fill="#0b1220">2</text><text x="116" y="438" font-size="20" fill="#e2e8f0">Unrolled / data consistency</text>
+    <circle cx="92" cy="472" r="12" fill="#f2a03a"/><text x="92" y="477" text-anchor="middle" font-size="14" font-weight="700" fill="#0b1220">3</text><text x="116" y="478" font-size="20" fill="#e2e8f0">Test-time</text>
+    <circle cx="92" cy="512" r="12" fill="#e2589c"/><text x="92" y="517" text-anchor="middle" font-size="14" font-weight="700" fill="#0b1220">4</text><text x="116" y="518" font-size="20" fill="#e2e8f0">Data-feedback</text>
+    <circle cx="92" cy="552" r="12" fill="#4cc584"/><text x="92" y="557" text-anchor="middle" font-size="14" font-weight="700" fill="#0b1220">5</text><text x="116" y="558" font-size="20" fill="#e2e8f0">Human, deployment &amp; lifelong</text>
+    <g transform="translate(1035 330) scale(0.9) translate(-985 -330)"><circle cx="985" cy="330" r="236" fill="#0b1626"/><circle cx="985" cy="330" r="236" fill="#4cc584" fill-opacity="0.13" stroke="#4cc584" stroke-width="2"/>
+    <circle cx="985" cy="330" r="198" fill="#0b1626"/><circle cx="985" cy="330" r="198" fill="#e2589c" fill-opacity="0.13" stroke="#e2589c" stroke-width="2"/>
+    <circle cx="985" cy="330" r="160" fill="#0b1626"/><circle cx="985" cy="330" r="160" fill="#f2a03a" fill-opacity="0.13" stroke="#f2a03a" stroke-width="2"/>
+    <circle cx="985" cy="330" r="122" fill="#0b1626"/><circle cx="985" cy="330" r="122" fill="#2bb8c4" fill-opacity="0.13" stroke="#2bb8c4" stroke-width="2"/>
+    <circle cx="985" cy="330" r="84" fill="#0b1626"/><circle cx="985" cy="330" r="84" fill="#7c7cf0" fill-opacity="0.13" stroke="#7c7cf0" stroke-width="2"/>
+    <circle cx="985" cy="330" r="46" fill="#0f1d33" stroke="#334155" stroke-width="1.5"/>
+    <circle cx="1019.4" cy="274.9" r="13.7" fill="#7c7cf0"/><text x="1019.4" y="280.6" text-anchor="middle" font-size="16" font-weight="700" fill="#0b1220">1</text>
+    <circle cx="1039.6" cy="242.7" r="13.7" fill="#2bb8c4"/><text x="1039.6" y="248.4" text-anchor="middle" font-size="16" font-weight="700" fill="#0b1220">2</text>
+    <circle cx="1059.7" cy="210.4" r="13.7" fill="#f2a03a"/><text x="1059.7" y="216.1" text-anchor="middle" font-size="16" font-weight="700" fill="#0b1220">3</text>
+    <circle cx="1079.9" cy="178.2" r="13.7" fill="#e2589c"/><text x="1079.9" y="183.9" text-anchor="middle" font-size="16" font-weight="700" fill="#0b1220">4</text>
+    <circle cx="1100.0" cy="146.0" r="13.7" fill="#4cc584"/><text x="1100.0" y="151.7" text-anchor="middle" font-size="16" font-weight="700" fill="#0b1220">5</text>
+    <path d="M 737 370 A 248 248 0 0 1 945 82" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 6" marker-end="url(#arrow)"/>
+    <text x="985" y="337" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="22" fill="#e2e8f0">s→Φ(s)</text></g>
+  </g>
+</svg>

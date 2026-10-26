@@ -1,0 +1,31 @@
+name: "Team: bulk import papers"
+description: Maintainers only. Attach a CSV in the team format and a bot opens a pull request.
+title: "[Bulk import] "
+labels: ["bulk-import"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **For the maintainer team.** Requests from anyone without write access are ignored.
+
+        Use the columns of `data/papers.csv`. Required: `paper_name`, `paper_link`, `year`, `model_name`.
+        Classify each row with `taxonomy_class` + `taxonomy_subcategory` from `config/taxonomy.json`
+        (the survey's Figure 3). Rows without an approved classification, or with
+        `classification_confidence` = `low`, go to `data/review_queue.csv` for a maintainer; no row can
+        create a new section. `venue_short` is optional and is guessed if missing. Papers already in the
+        list or the queue (same title, DOI or link) are skipped.
+
+        A bot validates the file, adds the papers, rebuilds the README and opens a pull request for review.
+        You'll get a comment here with the link, or with the problems to fix.
+  - type: textarea
+    id: csv
+    attributes:
+      label: CSV file
+      description: Drag and drop the .csv file into this box, or paste its contents (header row included).
+    validations:
+      required: true
+  - type: textarea
+    id: note
+    attributes:
+      label: Note for the reviewer
+      description: Optional. Where the papers came from, anything to double-check.

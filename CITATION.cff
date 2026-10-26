@@ -1,0 +1,58 @@
+cff-version: 1.2.0
+message: "If this list helps your research, please cite it as below, and cite the survey listed under preferred-citation."
+type: dataset
+title: "Awesome Looped Models for Medical Imaging: A Curated List of Iterative Architectures, Test-Time Adaptation and Feedback Loops"
+abstract: >-
+  The companion list to the survey "Looped Models for Medical Imaging: A Survey
+  of Iterative Architectures, Test-Time Adaptation, and Feedback". Papers and
+  code in which a medical imaging model, its training data or the deployed
+  system is updated by repeated computation: recurrent, recursive and
+  equilibrium networks; unrolled and data-consistency reconstruction; test-time
+  adaptation and training; self-training, co-training and active learning; and
+  human-in-the-loop, post-deployment and continual-learning loops.
+authors:
+  - name: "Big-Matrix R&D Lab, North South University"
+repository-code: "https://github.com/Big-Matrix-R-And-D-Lab/Awesome-Looped-Models-for-Medical-Imaging"
+url: "https://big-matrix-r-and-d-lab.github.io/Awesome-Looped-Models-for-Medical-Imaging/"
+license: CC0-1.0
+keywords:
+  - looped models
+  - recurrent networks
+  - deep equilibrium models
+  - algorithm unrolling
+  - data consistency
+  - MRI reconstruction
+  - test-time adaptation
+  - test-time training
+  - self-training
+  - active learning
+  - human-in-the-loop
+  - continual learning
+  - medical imaging
+  - awesome list
+date-released: "2026-10-26"
+preferred-citation:
+  type: article
+  title: "Looped Models for Medical Imaging: A Survey of Iterative Architectures, Test-Time Adaptation, and Feedback"
+  status: preprint
+  year: 2026
+  month: 10
+  authors:
+    - family-names: Saswato
+      given-names: Aritra Islam
+    - family-names: Karim
+      given-names: Labiba Faiza
+    - family-names: Khan
+      given-names: Md. Misbah
+    - family-names: Khan
+      given-names: Nishan
+    - family-names: Ahmed
+      given-names: Istiak
+    - family-names: Ahmed
+      given-names: Galib
+    - family-names: Sanjid
+      given-names: Kazi Shahriar
+    - family-names: Hossain
+      given-names: Md. Tanzim
+    - family-names: Uddin
+      given-names: M. Monir

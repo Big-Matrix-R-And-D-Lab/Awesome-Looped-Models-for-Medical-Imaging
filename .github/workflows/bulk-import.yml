@@ -1,0 +1,126 @@
+name: Bulk import
+
+# Team-only: a maintainer opens a "Team: bulk import papers" issue with a CSV attached.
+# This validates the CSV, adds the papers to data/papers.csv, rebuilds the README and opens
+# a pull request with the reviewer below requested. Anyone without write access is ignored.
+# Needs Settings → Actions → General → "Allow GitHub Actions to create and approve pull requests".
+
+on:
+  issues:
+    # Fires when the form applies the label at creation, and again if someone re-adds it to retry.
+    types: [labeled]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: bulk-import-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  import:
+    if: github.event.label.name == 'bulk-import'
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      ISSUE: ${{ github.event.issue.number }}
+      # Whoever applied the label: the issue author when the form opens it, or a maintainer re-adding it.
+      ACTOR: ${{ github.event.sender.login }}
+      # Credited as commit author and in `suggested_by`: whoever opened the import issue.
+      AUTHOR_LOGIN: ${{ github.event.issue.user.login }}
+      AUTHOR_ID: ${{ github.event.issue.user.id }}
+      REVIEWER: misbahx
+    steps:
+      - name: Check the requester has write access
+        id: perm
+        run: |
+          perm=$(gh api "repos/$REPO/collaborators/$ACTOR/permission" --jq .permission 2>/dev/null || echo none)
+          echo "Requester $ACTOR has permission: $perm"
+          open=$(gh pr list --repo "$REPO" --state open --limit 100 --json headRefName \
+            --jq "[.[] | select(.headRefName | startswith(\"bulk-import/issue-$ISSUE-\"))] | length")
+          if [[ "$open" != "0" ]]; then
+            echo "An open bulk-import PR for #$ISSUE already exists; skipping."
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          elif [[ "$perm" == "admin" || "$perm" == "maintain" || "$perm" == "write" ]]; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            gh issue comment "$ISSUE" --repo "$REPO" --body "Bulk import is limited to the maintainer team, so this request was not processed. To suggest a paper, please use the **Add a paper** form."
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.perm.outputs.ok == 'true'
+
+      - uses: actions/setup-python@v5
+        if: steps.perm.outputs.ok == 'true'
+        with:
+          python-version: "3.12"
+
+      - name: Find the CSV in the issue
+        id: find
+        if: steps.perm.outputs.ok == 'true'
+        run: |
+          if ! python scripts/issue_csv.py "$RUNNER_TEMP/incoming.csv"; then
+            gh issue comment "$ISSUE" --repo "$REPO" --body "I couldn't find a CSV in this issue. Edit it to drag and drop the \`.csv\` file into the **CSV file** box (or paste its contents), then remove and re-add the \`bulk-import\` label to retry."
+            exit 1
+          fi
+
+      - name: Download the attachment
+        if: steps.perm.outputs.ok == 'true' && steps.find.outputs.url != ''
+        env:
+          URL: ${{ steps.find.outputs.url }}
+        run: |
+          curl -fsSL --max-filesize 2000000 --proto '=https' -H "Authorization: Bearer $GH_TOKEN" \
+            -o "$RUNNER_TEMP/incoming.csv" "$URL"
+          echo "Downloaded $(wc -l < "$RUNNER_TEMP/incoming.csv") lines"
+
+      - name: Merge the papers
+        id: merge
+        if: steps.perm.outputs.ok == 'true'
+        run: |
+          set +e
+          python scripts/import_papers.py "$RUNNER_TEMP/incoming.csv" --summary "$RUNNER_TEMP/summary.md" --skipped "$RUNNER_TEMP/skipped.md" --suggested-by "$AUTHOR_LOGIN"
+          code=$?
+          set -e
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          if [[ $code -eq 1 ]]; then
+            { echo "The CSV could not be imported. Nothing was changed."; echo; cat "$RUNNER_TEMP/summary.md"; echo
+              echo "Fix the file, update this issue, then remove and re-add the \`bulk-import\` label to retry."; } > "$RUNNER_TEMP/comment.md"
+            gh issue comment "$ISSUE" --repo "$REPO" --body-file "$RUNNER_TEMP/comment.md"
+            exit 1
+          fi
+          if [[ $code -eq 3 ]]; then
+            gh issue comment "$ISSUE" --repo "$REPO" --body-file "$RUNNER_TEMP/summary.md"
+          fi
+
+      # Exit code 0 = papers added (some may be queued); 2 = papers only queued for review.
+      # Both change data files, so both open a pull request; queued rows are never dropped.
+      - name: Rebuild the README
+        if: steps.perm.outputs.ok == 'true' && (steps.merge.outputs.code == '0' || steps.merge.outputs.code == '2')
+        run: python scripts/build_readme.py
+
+      - name: Open the pull request
+        if: steps.perm.outputs.ok == 'true' && (steps.merge.outputs.code == '0' || steps.merge.outputs.code == '2')
+        run: |
+          count=$(grep -o 'Adds \*\*[0-9]*\*\*' "$RUNNER_TEMP/summary.md" | grep -o '[0-9]*' | head -1)
+          count=${count:-0}
+          branch="bulk-import/issue-$ISSUE-$GITHUB_RUN_ID"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git add data/papers.csv data/review_queue.csv README.md
+          # Authored by the issue's author (their GitHub no-reply address) so GitHub lists them as a contributor.
+          git commit --author "$AUTHOR_LOGIN <$AUTHOR_ID+$AUTHOR_LOGIN@users.noreply.github.com>" \
+            -m "feat(data): bulk import $count papers from #$ISSUE"
+          git push origin "$branch"
+          { echo "Bulk import requested by @$AUTHOR_LOGIN in #$ISSUE. The commit is authored by @$AUTHOR_LOGIN so they are credited as a contributor."; echo; cat "$RUNNER_TEMP/summary.md"; echo
+            echo "Closes #$ISSUE"; } > "$RUNNER_TEMP/pr.md"
+          pr=$(gh pr create --repo "$REPO" --base "${{ github.event.repository.default_branch }}" --head "$branch" \
+            --title "feat(data): bulk import $count papers from #$ISSUE" --body-file "$RUNNER_TEMP/pr.md" \
+            --reviewer "$REVIEWER")
+          { echo "Opened $pr with $count papers. @$REVIEWER has been asked to review. This issue closes when it merges."
+            if [[ -s "$RUNNER_TEMP/skipped.md" ]]; then echo; cat "$RUNNER_TEMP/skipped.md"; fi; } > "$RUNNER_TEMP/done.md"
+          gh issue comment "$ISSUE" --repo "$REPO" --body-file "$RUNNER_TEMP/done.md"

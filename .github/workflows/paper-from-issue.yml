@@ -1,0 +1,107 @@
+name: Paper from issue
+
+# Turns an "Add a paper" issue into a pull request. Runs when a maintainer adds the `accepted`
+# label, or straight away when someone with write access opens the issue (the form's
+# `new paper` label). The commit is authored by the person who opened the issue, so they are
+# credited as a contributor; the PR requests review from the maintainer below.
+# Needs Settings → Actions → General → "Allow GitHub Actions to create and approve pull requests".
+
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: paper-from-issue-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  pr:
+    if: >-
+      github.event.label.name == 'accepted' ||
+      (github.event.label.name == 'new paper' && github.event.sender.login == github.event.issue.user.login)
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      ISSUE: ${{ github.event.issue.number }}
+      SENDER: ${{ github.event.sender.login }}
+      AUTHOR_LOGIN: ${{ github.event.issue.user.login }}
+      AUTHOR_ID: ${{ github.event.issue.user.id }}
+      REVIEWER: misbahx
+    steps:
+      - name: Check who triggered it
+        id: perm
+        run: |
+          perm=$(gh api "repos/$REPO/collaborators/$SENDER/permission" --jq .permission 2>/dev/null || echo none)
+          open=$(gh pr list --repo "$REPO" --state open --limit 100 --json headRefName \
+            --jq "[.[] | select(.headRefName | startswith(\"paper/issue-$ISSUE-\"))] | length")
+          echo "Triggered by $SENDER ($perm); open PRs for this issue: $open"
+          # A non-maintainer opening an issue is normal: wait quietly for a maintainer to add `accepted`.
+          if [[ "$open" == "0" && ( "$perm" == "admin" || "$perm" == "maintain" || "$perm" == "write" ) ]]; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.perm.outputs.ok == 'true'
+
+      - uses: actions/setup-python@v5
+        if: steps.perm.outputs.ok == 'true'
+        with:
+          python-version: "3.12"
+
+      - name: Build the row from the issue
+        id: row
+        if: steps.perm.outputs.ok == 'true'
+        run: |
+          if ! python scripts/paper_from_issue.py "$RUNNER_TEMP/row.csv" "$RUNNER_TEMP/checks.md"; then
+            gh issue comment "$ISSUE" --repo "$REPO" --body "I couldn't read a paper title and a full \`https://\` paper link from this issue. Edit the issue, then remove and re-add the \`accepted\` label to retry."
+            exit 1
+          fi
+
+      - name: Merge the paper
+        id: merge
+        if: steps.perm.outputs.ok == 'true'
+        run: |
+          set +e
+          python scripts/import_papers.py "$RUNNER_TEMP/row.csv" --summary "$RUNNER_TEMP/summary.md" --suggested-by "$AUTHOR_LOGIN"
+          code=$?
+          set -e
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          if [[ $code -ne 0 ]]; then
+            { [[ $code -eq 3 ]] && echo "This paper was not added, so no pull request was opened." \
+                               || echo "The paper could not be added. Nothing was changed."; echo; cat "$RUNNER_TEMP/summary.md"; } > "$RUNNER_TEMP/comment.md"
+            gh issue comment "$ISSUE" --repo "$REPO" --body-file "$RUNNER_TEMP/comment.md"
+            [[ $code -eq 3 ]] && exit 0 || exit 1
+          fi
+
+      - name: Rebuild the README
+        if: steps.perm.outputs.ok == 'true' && steps.merge.outputs.code == '0'
+        run: python scripts/build_readme.py
+
+      - name: Open the pull request
+        if: steps.perm.outputs.ok == 'true' && steps.merge.outputs.code == '0'
+        run: |
+          model=$(python -c "import csv,sys; print(next(csv.DictReader(open(sys.argv[1], encoding='utf-8')))['model_name'])" "$RUNNER_TEMP/row.csv")
+          branch="paper/issue-$ISSUE-$GITHUB_RUN_ID"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git add data/papers.csv README.md
+          # Authored by the issue's author (their GitHub no-reply address) so GitHub lists them as a contributor.
+          git commit --author "$AUTHOR_LOGIN <$AUTHOR_ID+$AUTHOR_LOGIN@users.noreply.github.com>" \
+            -m "feat(data): add $model from #$ISSUE"
+          git push origin "$branch"
+          { echo "Adds a paper suggested by @$AUTHOR_LOGIN in #$ISSUE. The commit is authored by @$AUTHOR_LOGIN so they are credited as a contributor."
+            echo; cat "$RUNNER_TEMP/summary.md"
+            if [[ -s "$RUNNER_TEMP/checks.md" ]]; then echo; echo "**Before merging, check:**"; cat "$RUNNER_TEMP/checks.md"; fi
+            echo; echo "Closes #$ISSUE"; } > "$RUNNER_TEMP/pr.md"
+          pr=$(gh pr create --repo "$REPO" --base "${{ github.event.repository.default_branch }}" --head "$branch" \
+            --title "feat(data): add $model from #$ISSUE" --body-file "$RUNNER_TEMP/pr.md" --reviewer "$REVIEWER")
+          gh issue comment "$ISSUE" --repo "$REPO" --body "Thanks @$AUTHOR_LOGIN! I've opened $pr to add this paper, with you as the commit author. @$REVIEWER will review it."
